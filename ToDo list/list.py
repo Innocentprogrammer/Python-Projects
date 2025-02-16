@@ -1,64 +1,93 @@
+# Here import all thing including messagebox from the TKINTER library of PYTHON
 from tkinter import *
+from tkinter import messagebox as mes
 
-
-def add_btn():
-    task = task_entry.get()
-    time = time_entry.get()
-    lb.insert("end", f"{task} at {time}")
-    task_entry.delete(0, "end")
-    time_entry.delete(0, "end")
-
-
-def del_btn():
-    selected_task = lb.curselection()
-    lb.delete(selected_task)
-
-
+# This set of code is used to give the title of the TKINTER APP, Set the Dimension of APP, and Set the Background color.
 root = Tk()
+root.title("TO DO List App")
+root.minsize(500, 400)
+root.maxsize(550, 550)
+root.configure(bg="Pink")
 
-root.title("TO DO LIST")
-
-root.geometry("425x300")
-
-root.maxsize(425, 300)
-root.minsize(425, 300)
-
-root.configure(background="grey")
-
+# This set of code is used to generate a listbox
 frame = Frame(root)
-frame.pack(fill=X)
+frame.pack()
+Label(frame, text="TO DO List", bg="Yellow", font="Times 15 bold underline").pack(fill=X)
+scroll = Scrollbar(frame, orient=VERTICAL)
+select = Listbox(frame, yscrollcommand=scroll.set, font=('Times new roman', 16), bg="#f0fffc", width=50, height=10,
+                 borderwidth=3, relief="groove")
+scroll.config(command=select.yview)
+scroll.pack(side=RIGHT, fill=Y)
+select.pack(side=LEFT, fill=BOTH, expand=1)
 
-frame1 = Frame(root)
-frame1.pack(pady=3, fill=X)
+# This is an empty list to insert the task list into it
+c = []
 
-frame2 = Frame(root)
-frame2.pack(pady=2, fill=X)
 
-heading = Label(frame, text="Welcome to TO DO LIST App", font="Times 12 underline bold italic", fg="white", bg="blue",
-                pady=10, relief=RIDGE)
-heading.pack(fill=X, pady=2)
+# This function add the task into listbox
+def add():
+    if TaskEntry.get() != "":
+        c.append(TaskEntry.get())
+        select_set()
+        entry_reset()
+        mes.showinfo("Success Message", "New Task Edit Successfully")
+    else:
+        mes.showerror("Error", "Please Fill all Entries")
 
-t = Label(frame1, text="Enter Task:", font="Times 12 italic")
-t.grid(pady=2, column=0)
 
-task_entry = Entry(frame1)
-task_entry.grid(pady=2, row=0, column=1)
+# This function clear the entry widget
+def entry_reset():
+    TaskValue.set('')
 
-t1 = Label(frame1, text="Enter Time:", font="Times 12 italic")
-t1.grid(pady=2, row=0, column=2)
 
-time_entry = Entry(frame1)
-time_entry.grid(pady=2, row=0, column=3)
+# This function show the added task into listbox
+def select_set():
+    select.delete(0, END)
+    for i in c:
+        select.insert(END, i)
 
-add_task = Button(frame1, text="Add Task", font="Times 10 italic", fg="white", bg="green", pady=3, command=add_btn)
-add_task.grid(pady=2, row=1, column=1)
 
-del_task = Button(frame1, text="Delete Task", font="Times 10 italic", fg="white", bg="red", pady=3, command=del_btn)
-del_task.grid(pady=2, row=1, column=2)
+# Selected function to select the task from list box
+def selected():
+    if len(select.curselection()) == 0:
+        mes.showerror("Error", "Please Select the Name")
+    else:
+        return int(select.curselection()[0])
 
-tasklist = Label(frame2, text="Task List:", font="Times 12 italic")
-tasklist.pack(pady=2, side=LEFT)
 
-lb = Listbox(frame2, selectmode=SINGLE)
-lb.pack(pady=2, fill=X)
+# Delete function to delete the completed task from the list
+def delete():
+    if len(select.curselection()) != 0:
+        result = mes.askyesno('Confirmation', 'Do you want to Delete the selected task? ')
+        if result:
+            del c[selected()]
+            select_set()
+            mes.showinfo("Success Message", "Task Deleted Successfully")
+    elif len(c) == 0:
+        mes.showerror("Error", 'Task list is empty')
+    else:
+        mes.showerror("Error", 'Please select the Task')
+
+
+# Message in the form of label
+Task = Label(root, text="Enter Your Task", bg="light green", font="Times 15 bold underline")
+Task.pack(pady=5, fill=X)
+
+# Entry Widget to Get the task from the user
+TaskValue = StringVar()
+TaskEntry = Entry(root, textvariable=TaskValue, width=100, font=("Times New Roman", 15, "bold"))
+TaskEntry.pack(ipadx=2, ipady=2)
+
+# Button Frame to show both button on same line
+button_frame = Frame(root, bg="Light Blue")
+button_frame.pack(pady=5)
+
+# Add task Button
+add_button = Button(button_frame, text="Add Task", command=add)
+add_button.pack(side=LEFT, padx=10)
+
+# Delete Task Button
+delete_button = Button(button_frame, text="Delete Task", command=delete)
+delete_button.pack(side=LEFT, padx=10)
+
 root.mainloop()
